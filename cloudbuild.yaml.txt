@@ -1,0 +1,16 @@
+steps:
+# 1. Construcción de la imagen del contenedor
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/secure-repo/app-image', '.']
+
+# 2. Enviar la imagen al Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/secure-repo/app-image']
+
+# 3. Escanear vulnerabilidades con Container Analysis
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud container images describe us-central1-docker.pkg.dev/$PROJECT_ID/secure-repo/app-image --format=json | jq '.vulnerability'
